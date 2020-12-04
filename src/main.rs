@@ -8,8 +8,9 @@ use day::Day;
 mod day;
 mod day1;
 mod day2;
+mod day3;
 
-const DAYS: [Day; 2] = [day1::DAY1, day2::DAY2];
+const DAYS: [Day; 3] = [day1::DAY1, day2::DAY2, day3::DAY3];
 
 fn main() {
     let args = env::args();
