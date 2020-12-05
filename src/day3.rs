@@ -9,13 +9,19 @@ pub const DAY3: Day = Day {
     solver_from_input,
 };
 
+#[derive(Clone, Copy, PartialEq)]
+enum Tile {
+    Tree,
+    Empty,
+}
+
 struct Forest {
-    map: Vec<bool>,
+    map: Vec<Tile>,
     width: usize,
 }
 
 impl Forest {
-    fn tree_at(&self, x: usize, y: usize) -> Option<bool> {
+    fn tile_at(&self, x: usize, y: usize) -> Option<Tile> {
         let index = y * self.width + x;
         self.map.get(index).copied()
     }
@@ -42,13 +48,13 @@ impl<'a> Toboggan<'a> {
 }
 
 impl Iterator for Toboggan<'_> {
-    type Item = bool;
+    type Item = Tile;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let tree = self.forest.tree_at(self.x % self.forest.width, self.y)?;
+        let tile = self.forest.tile_at(self.x % self.forest.width, self.y)?;
         self.x += self.right;
         self.y += self.down;
-        Some(tree)
+        Some(tile)
     }
 }
 
@@ -57,7 +63,7 @@ impl Solver for Day3Solver {
     fn part1(&self) -> Result<String> {
         let forest = &self.0;
         let toboggan = Toboggan::new(forest, 3, 1);
-        let trees = toboggan.filter(|tree| *tree).count();
+        let trees = toboggan.filter(|tile| *tile == Tile::Tree).count();
 
         Ok(format!("Trees hit: {}", trees))
     }
@@ -73,7 +79,7 @@ impl Solver for Day3Solver {
         ];
         let trees: usize = sleds
             .iter_mut()
-            .map(|toboggan| toboggan.filter(|tree| *tree).count())
+            .map(|toboggan| toboggan.filter(|tile| *tile == Tile::Tree).count())
             .product();
 
         Ok(format!("Trees hit: {}", trees))
@@ -87,7 +93,7 @@ fn solver_from_input(input: &mut dyn BufRead) -> Result<DynSolver> {
     let map = iter::once(first_line)
         .chain(lines)
         .flat_map(|line| line.chars().collect::<Vec<_>>().into_iter())
-        .map(|c| c == '#')
+        .map(|c| if c == '#' { Tile::Tree } else { Tile::Empty })
         .collect();
     Ok(Box::new(Day3Solver(Forest { map, width })))
 }
