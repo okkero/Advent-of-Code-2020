@@ -1,5 +1,6 @@
 use crate::day::{Day, DynSolver, Solver};
 use anyhow::{anyhow, bail, Result};
+use itertools::Itertools;
 use std::io::BufRead;
 
 pub const DAY5: Day = Day {
@@ -12,20 +13,33 @@ struct Seat {
     column: u32,
 }
 
+impl Seat {
+    fn id(&self) -> u32 {
+        self.row * 8 + self.column
+    }
+}
+
 struct Day5Solver(Vec<Seat>);
 impl Solver for Day5Solver {
     fn part1(&self) -> Result<String> {
         let highest_id = self
             .0
             .iter()
-            .map(|seat| seat.row * 8 + seat.column)
+            .map(Seat::id)
             .max()
             .ok_or(anyhow!("No passports"))?;
         Ok(format!("Highest seat ID: {}", highest_id))
     }
 
     fn part2(&self) -> Result<String> {
-        bail!("Unimplemented")
+        let sorted_seats = self.0.iter().map(Seat::id).sorted();
+        for (a, b) in sorted_seats.tuple_windows() {
+            if a != b - 1 {
+                return Ok(format!("Your seat ID: {}", a + 1));
+            }
+        }
+
+        bail!("No seat ID found")
     }
 }
 
