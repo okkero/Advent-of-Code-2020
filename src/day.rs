@@ -1,14 +1,15 @@
 use anyhow::Result;
 use std::io::BufRead;
 
-pub type Part = fn(input: &mut dyn BufRead) -> Result<String>;
+pub type DynSolver = Box<dyn Solver>;
+pub type SolverFromInput = fn(input: &mut dyn BufRead) -> Result<DynSolver>;
 
 pub struct Day {
     pub title: &'static str,
-    pub solution: Solution,
+    pub solver_from_input: SolverFromInput,
 }
 
-pub struct Solution {
-    pub part1: Part,
-    pub part2: Part,
+pub trait Solver {
+    fn part1(&self) -> Result<String>;
+    fn part2(&self) -> Result<String>;
 }

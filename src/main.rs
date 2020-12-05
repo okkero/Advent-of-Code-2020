@@ -1,9 +1,11 @@
 use anyhow::Result;
 use std::env;
-use std::fs::File;
-use std::io::{BufReader, Seek, SeekFrom};
+use std::io::{BufReader, Read};
 
 use day::Day;
+use reqwest::blocking::Client;
+use reqwest::header::COOKIE;
+use std::fs::File;
 
 mod day;
 mod day1;
@@ -16,24 +18,38 @@ fn main() {
     let args = env::args();
     let day_string = args.skip(1).next().expect("Missing day argument");
     let day_num: usize = day_string.parse().expect("Unable to parse day");
+    let mut cookie = String::new();
+    File::open("cookie")
+        .expect("Unable to open cookie file")
+        .read_to_string(&mut cookie)
+        .expect("Unable to read cookie");
 
-    run_day(day_num);
+    run_day(&cookie, day_num);
 }
 
-fn run_day(day_num: usize) {
+fn run_day(cookie: &str, day_num: usize) {
     let day = DAYS.get(day_num - 1).expect("Invalid day");
-    let mut input_file =
-        File::open(format!("input/day{}.txt", day_num)).expect("Input file not found");
+    let input_result = Client::builder()
+        .build()
+        .unwrap()
+        .get(&format!(
+            "https://adventofcode.com/2020/day/{}/input",
+            day_num
+        ))
+        .header(COOKIE, format!("session={}", cookie))
+        .send();
+    let input = input_result.expect("Unable to fetch input");
 
+    let solver =
+        (day.solver_from_input)(&mut BufReader::new(input)).expect("Unable to parse input");
     println!("--- Day {}: {} ---", day_num, day.title);
     println!();
     println!("Part 1:");
-    let solution = (day.solution.part1)(&mut BufReader::new(&mut input_file));
+    let solution = solver.part1();
     print_solution(solution);
     println!();
-    input_file.seek(SeekFrom::Start(0)).unwrap();
     println!("Part 2:");
-    let solution = (day.solution.part2)(&mut BufReader::new(&mut input_file));
+    let solution = solver.part2();
     print_solution(solution);
 }
 

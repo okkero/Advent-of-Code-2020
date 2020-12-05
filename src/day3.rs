@@ -1,12 +1,12 @@
 use anyhow::{anyhow, Result};
 use std::io::BufRead;
 
-use crate::day::{Day, Solution};
+use crate::day::{Day, DynSolver, Solver};
 use std::iter;
 
 pub const DAY3: Day = Day {
     title: "Toboggan Trajectory",
-    solution: Solution { part1, part2 },
+    solver_from_input,
 };
 
 struct Forest {
@@ -52,32 +52,35 @@ impl Iterator for Toboggan<'_> {
     }
 }
 
-fn part1(input: &mut dyn BufRead) -> Result<String> {
-    let forest = parse_input(input)?;
-    let toboggan = Toboggan::new(&forest, 3, 1);
-    let trees = toboggan.filter(|tree| *tree).count();
+struct Day3Solver(Forest);
+impl Solver for Day3Solver {
+    fn part1(&self) -> Result<String> {
+        let forest = &self.0;
+        let toboggan = Toboggan::new(forest, 3, 1);
+        let trees = toboggan.filter(|tree| *tree).count();
 
-    Ok(format!("Trees hit: {}", trees))
+        Ok(format!("Trees hit: {}", trees))
+    }
+
+    fn part2(&self) -> Result<String> {
+        let forest = &self.0;
+        let mut sleds = [
+            Toboggan::new(forest, 1, 1),
+            Toboggan::new(forest, 3, 1),
+            Toboggan::new(forest, 5, 1),
+            Toboggan::new(forest, 7, 1),
+            Toboggan::new(forest, 1, 2),
+        ];
+        let trees: usize = sleds
+            .iter_mut()
+            .map(|toboggan| toboggan.filter(|tree| *tree).count())
+            .product();
+
+        Ok(format!("Trees hit: {}", trees))
+    }
 }
 
-fn part2(input: &mut dyn BufRead) -> Result<String> {
-    let forest = parse_input(input)?;
-    let mut sleds = [
-        Toboggan::new(&forest, 1, 1),
-        Toboggan::new(&forest, 3, 1),
-        Toboggan::new(&forest, 5, 1),
-        Toboggan::new(&forest, 7, 1),
-        Toboggan::new(&forest, 1, 2),
-    ];
-    let trees: usize = sleds
-        .iter_mut()
-        .map(|toboggan| toboggan.filter(|tree| *tree).count())
-        .product();
-
-    Ok(format!("Trees hit: {}", trees))
-}
-
-fn parse_input(input: &mut dyn BufRead) -> Result<Forest> {
+fn solver_from_input(input: &mut dyn BufRead) -> Result<DynSolver> {
     let mut lines = input.lines().filter_map(|r| r.ok());
     let first_line = lines.next().ok_or(anyhow!("Input is empty"))?;
     let width = first_line.len();
@@ -86,5 +89,5 @@ fn parse_input(input: &mut dyn BufRead) -> Result<Forest> {
         .flat_map(|line| line.chars().collect::<Vec<_>>().into_iter())
         .map(|c| c == '#')
         .collect();
-    Ok(Forest { map, width })
+    Ok(Box::new(Day3Solver(Forest { map, width })))
 }
