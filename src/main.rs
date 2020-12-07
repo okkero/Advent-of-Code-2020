@@ -13,8 +13,16 @@ mod day2;
 mod day3;
 mod day4;
 mod day5;
+mod day6;
 
-const DAYS: [Day; 5] = [day1::DAY1, day2::DAY2, day3::DAY3, day4::DAY4, day5::DAY5];
+const DAYS: [Day; 6] = [
+    day1::DAY1,
+    day2::DAY2,
+    day3::DAY3,
+    day4::DAY4,
+    day5::DAY5,
+    day6::DAY6,
+];
 
 fn main() {
     let args = env::args();
