@@ -7,6 +7,8 @@ use reqwest::blocking::Client;
 use reqwest::header::COOKIE;
 use std::fs::File;
 
+mod utils;
+
 mod day;
 mod day1;
 mod day2;
