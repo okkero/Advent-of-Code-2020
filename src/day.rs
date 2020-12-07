@@ -1,5 +1,13 @@
-use anyhow::Result;
 use std::io::BufRead;
+
+use anyhow::Result;
+
+pub mod day1;
+pub mod day2;
+pub mod day3;
+pub mod day4;
+pub mod day5;
+pub mod day6;
 
 pub type DynSolver = Box<dyn Solver>;
 pub type SolverFromInput = fn(input: &mut dyn BufRead) -> Result<DynSolver>;

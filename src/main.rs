@@ -1,19 +1,14 @@
-use anyhow::Result;
+use day::{day1, day2, day3, day4, day5, day6, Day};
+
 use std::env;
+use std::fs::File;
 use std::io::{BufReader, Read};
 
-use day::Day;
+use anyhow::Result;
 use reqwest::blocking::Client;
 use reqwest::header::COOKIE;
-use std::fs::File;
 
 mod day;
-mod day1;
-mod day2;
-mod day3;
-mod day4;
-mod day5;
-mod day6;
 
 const DAYS: [Day; 6] = [
     day1::DAY1,

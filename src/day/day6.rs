@@ -1,9 +1,11 @@
 use crate::day::{Day, DynSolver, Solver};
-use anyhow::Result;
-use itertools::Itertools;
+
 use std::collections::HashMap;
 use std::io::BufRead;
 use std::iter;
+
+use anyhow::Result;
+use itertools::Itertools;
 
 pub const DAY6: Day = Day {
     title: "Custom Customs",

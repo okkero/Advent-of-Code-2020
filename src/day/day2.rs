@@ -1,7 +1,8 @@
-use anyhow::{anyhow, Result};
+use crate::day::{Day, DynSolver, Solver};
+
 use std::io::BufRead;
 
-use crate::day::{Day, DynSolver, Solver};
+use anyhow::{anyhow, Result};
 
 pub const DAY2: Day = Day {
     title: "Password Philosophy",

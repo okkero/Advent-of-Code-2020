@@ -1,6 +1,7 @@
+use crate::day::{Day, DynSolver, Solver};
+
 use std::io::{BufRead, BufReader};
 
-use crate::day::{Day, DynSolver, Solver};
 use anyhow::{bail, Result};
 use itertools::iproduct;
 

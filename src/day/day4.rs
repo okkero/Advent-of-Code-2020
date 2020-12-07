@@ -1,11 +1,12 @@
-use anyhow::{anyhow, bail, Result};
-use std::io::BufRead;
-
 use crate::day::{Day, DynSolver, Solver};
-use itertools::Itertools;
+
 use std::collections::HashMap;
+use std::io::BufRead;
 use std::iter;
 use std::str::FromStr;
+
+use anyhow::{anyhow, bail, Result};
+use itertools::Itertools;
 
 pub const DAY4: Day = Day {
     title: "Passport Processing",

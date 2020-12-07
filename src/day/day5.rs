@@ -1,7 +1,9 @@
 use crate::day::{Day, DynSolver, Solver};
+
+use std::io::BufRead;
+
 use anyhow::{anyhow, bail, Result};
 use itertools::Itertools;
-use std::io::BufRead;
 
 pub const DAY5: Day = Day {
     title: "Binary Boarding",

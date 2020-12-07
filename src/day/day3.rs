@@ -1,8 +1,9 @@
-use anyhow::{anyhow, Result};
-use std::io::BufRead;
-
 use crate::day::{Day, DynSolver, Solver};
+
+use std::io::BufRead;
 use std::iter;
+
+use anyhow::{anyhow, Result};
 
 pub const DAY3: Day = Day {
     title: "Toboggan Trajectory",
