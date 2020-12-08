@@ -1,4 +1,4 @@
-use day::{day1, day2, day3, day4, day5, day6, Day};
+use day::{day1, day2, day3, day4, day5, day6, day7, Day};
 
 use std::env;
 use std::fs::File;
@@ -10,13 +10,14 @@ use reqwest::header::COOKIE;
 
 mod day;
 
-const DAYS: [Day; 6] = [
+const DAYS: [Day; 7] = [
     day1::DAY1,
     day2::DAY2,
     day3::DAY3,
     day4::DAY4,
     day5::DAY5,
     day6::DAY6,
+    day7::DAY7,
 ];
 
 fn main() {
