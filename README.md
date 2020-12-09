@@ -9,4 +9,4 @@ Create a file called `cookie` in the root of the project, and paste your AoC coo
 The cookie is used only to download your puzzle input.
 
 ### Run the code
-To run, execute `cargo run -- <day>`
+To run, execute `cargo run --release -- <day>`
