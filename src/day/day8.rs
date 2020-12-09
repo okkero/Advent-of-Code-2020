@@ -1,10 +1,10 @@
 use crate::day::{Day, DynSolver, Solver};
 
+use std::collections::HashSet;
 use std::io::BufRead;
+use std::str::FromStr;
 
 use anyhow::{anyhow, bail, Result};
-use std::collections::HashSet;
-use std::str::FromStr;
 
 pub const DAY8: Day = Day {
     title: "Handheld Halting",
