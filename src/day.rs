@@ -10,6 +10,7 @@ pub mod day5;
 pub mod day6;
 pub mod day7;
 pub mod day8;
+pub mod day9;
 
 pub type DynSolver = Box<dyn Solver>;
 pub type SolverFromInput = fn(input: &mut dyn BufRead) -> Result<DynSolver>;
