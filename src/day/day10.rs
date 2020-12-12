@@ -1,10 +1,10 @@
 use crate::day::{Day, DynSolver, Solver};
 
+use std::collections::HashMap;
 use std::io::BufRead;
 
 use anyhow::Result;
 use itertools::Itertools;
-use std::collections::HashMap;
 
 pub const DAY10: Day = Day {
     title: "Adapter Array",
