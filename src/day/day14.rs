@@ -1,8 +1,8 @@
 use crate::day::{Day, DynSolver, Solver};
 
+use std::collections::HashMap;
 use std::io::BufRead;
 use std::str::FromStr;
-use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
 use itertools::Itertools;
