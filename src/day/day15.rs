@@ -30,19 +30,19 @@ impl Game {
         }
     }
 
+    fn previously_spoken(&self, previous: u32) -> Option<usize> {
+        self.previously_spoken.get(&previous).copied()
+    }
+
     fn simulate(mut self) -> impl Iterator<Item = u32> {
-        let mut current_turn = self.starting_numbers.len();
+        let mut previous_turn = self.starting_numbers.len() - 1;
         iter::successors(self.starting_numbers.last().copied(), move |previous| {
             let next_number =
-                if let Some(last_spoken_turn) = self.previously_spoken.get(previous).copied() {
-                    (current_turn - 1 - last_spoken_turn) as u32
-                } else {
-                    0
-                };
-            self.previously_spoken.insert(*previous, current_turn - 1);
-            current_turn += 1;
+                previous_turn - self.previously_spoken(*previous).unwrap_or(previous_turn);
+            self.previously_spoken.insert(*previous, previous_turn);
+            previous_turn += 1;
 
-            Some(next_number)
+            Some(next_number as u32)
         })
     }
 }
