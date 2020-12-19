@@ -12,13 +12,13 @@ pub const DAY18: Day = Day {
 
 #[derive(Debug)]
 enum Expr {
-    Add(Box<Expr>, Box<Expr>),
-    Mul(Box<Expr>, Box<Expr>),
-    Val(u32),
+    Add(Box<Self>, Box<Self>),
+    Mul(Box<Self>, Box<Self>),
+    Val(u64),
 }
 
 impl Expr {
-    fn evaluate(&self) -> u32 {
+    fn evaluate(&self) -> u64 {
         match self {
             Self::Add(a, b) => a.evaluate() + b.evaluate(),
             Self::Mul(a, b) => a.evaluate() * b.evaluate(),
@@ -29,7 +29,7 @@ impl Expr {
 
 impl Expr {
     fn parse(s: &str) -> Result<Self> {
-        let (rest, expr) = Self::parse_term(&s)?;
+        let (rest, expr) = Self::parse_term(&s, None)?;
 
         if rest.len() != 0 {
             bail!("Unexpected trailing input");
@@ -38,23 +38,24 @@ impl Expr {
         Ok(expr)
     }
 
-    fn parse_term(s: &str) -> Result<(&str, Self)> {
-        let i = Self::next_token_index(s).ok_or(anyhow!("No more tokens"))?;
-        let (s, lhs) = match s.chars().nth(i).unwrap() {
-            c @ '0'..='9' => (&s[(i + 1)..], Self::Val(c.to_digit(10).unwrap())),
-            '(' => Self::parse_sub(&s[(i + 1)..])?,
-            c => bail!("Unexpected '{}'", c),
+    fn parse_term(s: &str, lhs: Option<Self>) -> Result<(&str, Self)> {
+        let (s, lhs) = if let Some(lhs) = lhs {
+            (s, lhs)
+        } else {
+            Self::parse_next_single(s)?
         };
 
         if let Some(i) = Self::next_token_index(s) {
             match s.chars().nth(i).unwrap() {
                 '+' => {
-                    let (rest, rhs) = Self::parse_term(&s[(i + 1)..])?;
-                    Ok((rest, Self::Add(Box::new(lhs), Box::new(rhs))))
+                    let (rest, rhs) = Self::parse_next_single(&s[(i + 1)..])?;
+                    let expr = Self::Add(Box::new(lhs), Box::new(rhs));
+                    Self::parse_term(rest, Some(expr))
                 }
                 '*' => {
-                    let (rest, rhs) = Self::parse_term(&s[(i + 1)..])?;
-                    Ok((rest, Self::Mul(Box::new(lhs), Box::new(rhs))))
+                    let (rest, rhs) = Self::parse_next_single(&s[(i + 1)..])?;
+                    let expr = Self::Mul(Box::new(lhs), Box::new(rhs));
+                    Self::parse_term(rest, Some(expr))
                 }
                 ')' => Ok((&s[i..], lhs)),
                 c => bail!("Unexpected '{}'", c),
@@ -65,12 +66,21 @@ impl Expr {
     }
 
     fn parse_sub(s: &str) -> Result<(&str, Self)> {
-        let (s, term) = Self::parse_term(&s)?;
+        let (s, term) = Self::parse_term(&s, None)?;
 
         if let Some(')') = s.chars().next() {
             Ok((&s[1..], term))
         } else {
             bail!("Expected end of sub-expression ')'")
+        }
+    }
+
+    fn parse_next_single(s: &str) -> Result<(&str, Expr)> {
+        let i = Self::next_token_index(s).ok_or(anyhow!("No more tokens"))?;
+        match s.chars().nth(i).unwrap() {
+            '(' => Self::parse_sub(&s[(i + 1)..]),
+            c @ '0'..='9' => Ok((&s[(i + 1)..], Self::Val(c.to_digit(10).unwrap() as u64))),
+            c => bail!("Unexpected '{}'", c),
         }
     }
 
@@ -87,10 +97,12 @@ impl FromStr for Expr {
     }
 }
 
-struct Day18Solver;
+struct Day18Solver(Vec<Expr>);
 impl Solver for Day18Solver {
     fn part1(&self) -> Result<String> {
-        bail!("Unimplemented")
+        let sum: u64 = self.0.iter().map(|expr| expr.evaluate()).sum();
+
+        Ok(format!("Sum of all expressions: {}", sum))
     }
 
     fn part2(&self) -> Result<String> {
@@ -99,5 +111,9 @@ impl Solver for Day18Solver {
 }
 
 fn solver_from_input(input: &mut dyn BufRead) -> Result<DynSolver> {
-    Ok(Box::new(Day18Solver))
+    let expressions = input
+        .lines()
+        .map(|line| line?.parse())
+        .collect::<Result<_>>()?;
+    Ok(Box::new(Day18Solver(expressions)))
 }
