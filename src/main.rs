@@ -1,6 +1,6 @@
 use day::{
-    day1, day10, day11, day12, day13, day14, day15, day2, day3, day4, day5, day6, day7, day8, day9,
-    Day,
+    day1, day10, day11, day12, day13, day14, day15, day16, day2, day3, day4, day5, day6, day7,
+    day8, day9, Day,
 };
 
 use std::env;
@@ -13,7 +13,7 @@ use reqwest::header::COOKIE;
 
 mod day;
 
-const DAYS: [Day; 15] = [
+const DAYS: [Day; 16] = [
     day1::DAY1,
     day2::DAY2,
     day3::DAY3,
@@ -29,6 +29,7 @@ const DAYS: [Day; 15] = [
     day13::DAY13,
     day14::DAY14,
     day15::DAY15,
+    day16::DAY16,
 ];
 
 fn main() {
