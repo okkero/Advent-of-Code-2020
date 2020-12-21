@@ -3,7 +3,8 @@ use crate::day::{Day, DynSolver, Solver};
 use std::io::BufRead;
 use std::str::FromStr;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, Result};
+use std::iter;
 
 pub const DAY19: Day = Day {
     title: "Monster Messages",
@@ -46,37 +47,39 @@ struct Message(Vec<Character>);
 
 impl Message {
     fn matches(&self, rule: &Rule, rules: &[Rule]) -> bool {
-        if let Some([]) = Self::matches_impl(&self.0, rule, rules) {
-            true
-        } else {
-            false
-        }
+        Self::matches_impl(&self.0, rule, rules)
+            .filter(|m| m.is_empty())
+            .next()
+            .is_some()
     }
 
+    // TODO reduce allocations
     fn matches_impl<'a>(
         message: &'a [Character],
-        rule: &Rule,
-        rules: &[Rule],
-    ) -> Option<&'a [Character]> {
+        rule: &'a Rule,
+        rules: &'a [Rule],
+    ) -> Box<dyn Iterator<Item = &'a [Character]> + 'a> {
         match rule {
-            Rule::OneOf(lists) => lists
-                .iter()
-                .map(|list| {
-                    let mut message = message;
-                    for index in list {
-                        let rule = rules.get(*index)?;
-                        message = Self::matches_impl(message, rule, rules)?;
-                    }
-
-                    Some(message)
-                })
-                .filter_map(|x| x)
-                .next(),
+            Rule::OneOf(lists) => Box::new(lists.iter().flat_map(move |list| {
+                let mut messages: Box<dyn Iterator<Item = &'a [Character]> + 'a> =
+                    Box::new(iter::once(message));
+                for index in list {
+                    let rule = &rules[*index];
+                    messages = Box::new(
+                        messages.flat_map(move |message| Self::matches_impl(message, rule, rules)),
+                    );
+                }
+                messages
+            })),
             Rule::Literal(c) => {
-                if message.first()? == c {
-                    Some(&message[1..])
+                if let Some(first) = message.first() {
+                    if first == c {
+                        Box::new(iter::once(&message[1..]))
+                    } else {
+                        Box::new(iter::empty())
+                    }
                 } else {
-                    None
+                    Box::new(iter::empty())
                 }
             }
         }
@@ -103,7 +106,21 @@ impl Solver for Day19Solver {
     }
 
     fn part2(&self) -> Result<String> {
-        bail!("Unimplemented")
+        let mut rules = self.rules.clone();
+        rules[8] = Rule::OneOf(vec![vec![42, 8], vec![42]]);
+        rules[11] = Rule::OneOf(vec![vec![42, 31], vec![42, 11, 31]]);
+
+        let rule0 = &rules[0];
+        let match_count = self
+            .messages
+            .iter()
+            .filter(|message| message.matches(rule0, &rules))
+            .count();
+
+        Ok(format!(
+            "Amount of messages matching rule 0: {}",
+            match_count
+        ))
     }
 }
 
