@@ -1,5 +1,6 @@
 use crate::day::{Day, DynSolver, Solver};
 
+use std::collections::HashSet;
 use std::io::BufRead;
 
 use anyhow::{anyhow, bail, Result};
@@ -20,6 +21,21 @@ enum Direction {
     SE,
 }
 
+fn setup(instructions: &Vec<Vec<Direction>>) -> HashSet<(i32, i32)> {
+    instructions
+        .iter()
+        .map(|steps| {
+            steps
+                .iter()
+                .fold((0, 0), |coords, dir| adjacent(coords, *dir))
+        })
+        .counts()
+        .into_iter()
+        .filter(|(_, count)| count % 2 == 1)
+        .map(|(coords, _)| coords)
+        .collect()
+}
+
 fn adjacent((x, y): (i32, i32), dir: Direction) -> (i32, i32) {
     match dir {
         Direction::W => (x - 1, y),
@@ -31,23 +47,54 @@ fn adjacent((x, y): (i32, i32), dir: Direction) -> (i32, i32) {
     }
 }
 
+fn adjacents(coords: (i32, i32)) -> impl Iterator<Item = (i32, i32)> {
+    use Direction::*;
+
+    [W, E, NW, NE, SW, SE]
+        .iter()
+        .map(move |dir| adjacent(coords, *dir))
+}
+
 struct Day24Solver(Vec<Vec<Direction>>);
 impl Solver for Day24Solver {
     fn part1(&self) -> Result<String> {
-        let flipped = self
-            .0
-            .iter()
-            .map(|steps| steps.iter().fold((0, 0), |coords, dir| adjacent(coords, *dir)))
-            .counts()
-            .into_iter()
-            .filter(|(_, count)| count % 2 == 1)
-            .count();
+        let black_count = setup(&self.0).len();
 
-        Ok(format!("Amount of flipped tiles: {}", flipped))
+        Ok(format!("Amount of flipped tiles: {}", black_count))
     }
 
     fn part2(&self) -> Result<String> {
-        bail!("Unimplemented")
+        let mut tiles = setup(&self.0);
+
+        for _ in 0..100 {
+            let mut visited_white = Vec::new();
+            let mut new_tiles = tiles
+                .iter()
+                .copied()
+                .filter(|coords| {
+                    let (adjacent_black, adjacent_white): (Vec<_>, _) =
+                        adjacents(*coords).partition(|adjacent| tiles.contains(&adjacent));
+                    let adjacent_black_count = adjacent_black.len();
+                    visited_white.extend(adjacent_white);
+
+                    adjacent_black_count == 1 || adjacent_black_count == 2
+                })
+                .collect::<HashSet<_>>();
+            new_tiles.extend(
+                visited_white
+                    .into_iter()
+                    .counts()
+                    .into_iter()
+                    .filter(|(_, count)| *count == 2)
+                    .map(|(coords, _)| coords),
+            );
+
+            tiles = new_tiles;
+        }
+
+        let black_count = tiles.len();
+
+        Ok(format!("Amount of black tiles: {}", black_count))
     }
 }
 
